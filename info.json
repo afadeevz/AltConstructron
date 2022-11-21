@@ -1,0 +1,12 @@
+{
+    "name": "AltConstructron",
+    "version": "0.0.1",
+    "title": "AltConstructron",
+    "author": "afadeevz",
+    "factorio_version": "1.1",
+    "dependencies": [
+        "base"
+    ],
+    "contact": "@afadeevz (Telegram)",
+    "description": "An alternative to Constructron[-Continued] mod"
+}
