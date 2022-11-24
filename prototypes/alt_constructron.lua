@@ -9,11 +9,23 @@ alt_constructron_item.place_result = "alt-constructron"
 
 alt_constructron_recipe = table.deepcopy(data.raw.recipe["spidertron"])
 alt_constructron_recipe.name = "alt-constructron"
-alt_constructron_recipe.ingredients = {{"spidertron", 1}}
+alt_constructron_recipe.ingredients = { { "spidertron", 1 } }
 alt_constructron_recipe.result = "alt-constructron"
 
-data:extend{
+alt_constructron_technology = table.deepcopy(data.raw.technology["spidertron"])
+alt_constructron_technology.name = "alt-constructron"
+alt_constructron_technology.prerequistes = {
+    "constructron",
+    "robotics"
+}
+alt_constructron_technology.effects = { {
+    type = "unlock-recipe",
+    recipe = "alt-constructron"
+} }
+
+data:extend {
     alt_constructron,
     alt_constructron_item,
-    alt_constructron_recipe
+    alt_constructron_recipe,
+    alt_constructron_technology
 }
