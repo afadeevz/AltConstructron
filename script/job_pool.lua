@@ -5,7 +5,6 @@ function job_pool.on_init()
 end
 
 function job_pool.on_ghost_placed(event)
-    job_pool.on_init()
     table.insert(global.job_pool, event.created_entity)
 end
 

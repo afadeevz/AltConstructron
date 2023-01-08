@@ -1,4 +1,5 @@
 local job_pool = require("script.job_pool")
+local workers = require("script.workers")
 
 local handlers = {}
 
@@ -6,8 +7,9 @@ script.on_event(defines.events.on_built_entity,
     function(event)
         local entity = event.created_entity
         local type = entity.type
-        if type == "spider-vehicle" then
-            log("SPIDER")
+        local name = entity.name
+        if name == "alt-constructron" then
+            workers.on_worker_placed(event)
         elseif type == "entity-ghost" or type == "tile-ghost" then
             job_pool.on_ghost_placed(event)
         else
