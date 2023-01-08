@@ -1,0 +1,1 @@
+require("script.event.handlers")

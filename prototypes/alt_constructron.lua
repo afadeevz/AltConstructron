@@ -7,12 +7,12 @@ alt_constructron_item.name = "alt-constructron"
 alt_constructron_item.order = "b[personal-transport]-c[spidertron]-ab[constructron]"
 alt_constructron_item.place_result = "alt-constructron"
 
-alt_constructron_recipe = table.deepcopy(data.raw.recipe["spidertron"])
+local alt_constructron_recipe = table.deepcopy(data.raw.recipe["spidertron"])
 alt_constructron_recipe.name = "alt-constructron"
 alt_constructron_recipe.ingredients = { { "spidertron", 1 } }
 alt_constructron_recipe.result = "alt-constructron"
 
-alt_constructron_technology = table.deepcopy(data.raw.technology["spidertron"])
+local alt_constructron_technology = table.deepcopy(data.raw.technology["spidertron"])
 alt_constructron_technology.name = "alt-constructron"
 alt_constructron_technology.prerequistes = {
     "constructron",
