@@ -21,4 +21,10 @@ script.on_event(defines.events.on_built_entity,
     { filter = "name", name = "tile-ghost" }
 })
 
+script.on_nth_tick(1,
+    function()
+        workers.on_tick()
+    end
+)
+
 return handlers
