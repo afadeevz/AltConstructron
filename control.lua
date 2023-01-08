@@ -1,1 +1,1 @@
-require("script.event.handlers")
+require("script.event_handlers")
