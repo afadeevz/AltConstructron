@@ -1,3 +1,5 @@
+local job_pool = require("script.job_pool")
+
 local handlers = {}
 
 script.on_event(defines.events.on_built_entity,
@@ -7,9 +9,9 @@ script.on_event(defines.events.on_built_entity,
         if type == "spider-vehicle" then
             log("SPIDER")
         elseif type == "entity-ghost" or type == "tile-ghost" then
-            log("GHOST")
+            job_pool.on_ghost_placed(event)
         else
-            log("on_built_entity: unknown entity type")
+            game.print("on_built_entity: unknown entity type")
         end
     end, {
     { filter = "name", name = "alt-constructron", mode = "or" },
