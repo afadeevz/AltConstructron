@@ -58,9 +58,15 @@ function workers.on_tick()
         return
     end
 
-    local job = job_pool.get_job()
-    if job == nil then
-        return
+    local offset = (id - 1) / workers.count()
+    local job = nil
+    local retries = 0
+    while job == nil do
+        if retries ^ 2 > job_pool.count() then
+            return
+        end
+        job = job_pool.get_job(offset)
+        retries = retries + 1
     end
 
     worker.target = job

@@ -17,10 +17,13 @@ function job_pool.select_next()
     end
 end
 
-function job_pool.get_job()
-    local job = global.job_pool[global.job_pool_active_id]
+function job_pool.get_job(offset)
+    offset = offset or 0
+    local id_offset = math.floor(offset * job_pool.count())
+    local id = (global.job_pool_active_id + id_offset - 1) % job_pool.count() + 1
+    local job = global.job_pool[id]
     if not job.valid then
-        global.job_pool[global.job_pool_active_id] = global.job_pool[job_pool.count()]
+        global.job_pool[id] = global.job_pool[job_pool.count()]
         table.remove(global.job_pool)
         job_pool.select_next()
         return nil
