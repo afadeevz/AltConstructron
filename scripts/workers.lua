@@ -1,4 +1,4 @@
-local job_pool = require("script.job_pool")
+local jobs = require("scripts.jobs")
 
 local workers = {}
 
@@ -54,7 +54,7 @@ function workers.on_tick()
         worker.target = nil
     end
 
-    if job_pool.count() == 0 then
+    if jobs.count() == 0 then
         return
     end
 
@@ -62,10 +62,10 @@ function workers.on_tick()
     local job = nil
     local retries = 0
     while job == nil do
-        if retries ^ 2 > job_pool.count() then
+        if retries ^ 2 > jobs.count() then
             return
         end
-        job = job_pool.get_job(offset)
+        job = jobs.get_job(offset)
         retries = retries + 1
     end
 

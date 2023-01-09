@@ -1,9 +1,9 @@
 require("scripts.event_handlers")
-local job_pool = require("scripts.job_pool")
+local jobs = require("scripts.jobs")
 local workers = require("scripts.workers")
 
 local function on_init()
-    job_pool.on_init()
+    jobs.on_init()
     workers.on_init()
 end
 
