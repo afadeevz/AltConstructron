@@ -34,7 +34,7 @@ function workers.on_tick(worker)
     if worker.state == workers.State.Idle then
         local limit = workers.robot_limit(worker)
 
-        if workers.count_robots(worker) == limit then
+        if workers.count_robots(worker) >= limit then
             entity.clear_request_slot(1)
             return false
         else
@@ -46,13 +46,19 @@ function workers.on_tick(worker)
         end
 
     elseif worker.state == workers.State.Following then
-        if workers.is_following(worker) and target.valid then
-            entity.autopilot_destination = target.position
-            return true
+        if not workers.is_following(worker) or not worker.target.valid then
+            workers.stop(worker)
+            return false
         end
 
-        workers.stop(worker)
-        return false
+        if worker.entity.logistic_cell.to_charge_robot_count > 0 then
+            workers.pause(worker)
+        elseif worker.entity.logistic_cell.to_charge_robot_count == 0
+            and worker.entity.logistic_cell.charging_robot_count == 0 then
+            workers.continue(worker)
+        end
+
+        return true
     else
         error("unknown worker state")
     end
@@ -97,6 +103,14 @@ function workers.stop(worker)
     worker.target = nil
     worker.entity.autopilot_destination = nil
     worker.state = workers.State.Idle
+end
+
+function workers.pause(worker)
+    worker.entity.autopilot_destination = nil
+end
+
+function workers.continue(worker)
+    worker.entity.autopilot_destination = worker.target.position
 end
 
 ---@param worker Worker

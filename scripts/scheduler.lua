@@ -32,7 +32,7 @@ function scheduler.on_tick()
     local job = nil
     local retries = 0
     while job == nil do
-        if retries ^ 2 > jobs.count() then
+        if retries ^ 3 > jobs.count() then
             return
         end
         local id_offset = math.floor(offset * jobs.count())
