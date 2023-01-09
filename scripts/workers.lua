@@ -2,76 +2,124 @@ local jobs = require("scripts.jobs")
 
 local workers = {}
 
+---@enum WorkerState
+workers.State = {
+    Idle = 1,
+    Following = 2
+}
+
+---@class Worker
+---@field entity LuaEntity
+---@field target LuaEntity
+---@field state WorkerState
+
 function workers.on_init()
-    global.workers = global.workers or {}
-    global.workers_active_id = global.workers_active_id or 1
+    global.workers = {} ---@type Worker[]
 end
 
 function workers.on_worker_placed(event)
     table.insert(global.workers, {
         target = nil,
         entity = event.created_entity,
+        state = workers.State.Idle,
     })
+end
+
+---@param worker Worker
+---@return boolean
+function workers.on_tick(worker)
+    local entity = worker.entity
+    local target = worker.target
+
+    if worker.state == workers.State.Idle then
+        local limit = workers.robot_limit(worker)
+
+        if workers.count_robots(worker) == limit then
+            entity.clear_request_slot(1)
+            return false
+        else
+            entity.set_request_slot({
+                name = 'construction-robot',
+                count = limit
+            }, 1)
+            return true
+        end
+
+    elseif worker.state == workers.State.Following then
+        if workers.is_following(worker) and target.valid then
+            entity.autopilot_destination = target.position
+            return true
+        end
+
+        workers.stop(worker)
+        return false
+    else
+        error("unknown worker state")
+    end
 end
 
 function workers.count()
     return #global.workers
 end
 
+---@return Worker?
 function workers.get(id)
-    return global.workers[id]
-end
-
-function workers.get_active()
-    return global.workers[global.workers_active_id]
-end
-
-function workers.select_next()
-    global.workers_active_id = global.workers_active_id % workers.count() + 1
-end
-
-function workers.on_tick()
-    if workers.count() == 0 then
-        return
+    if id > workers.count() then
+        error("invalid worker ID")
     end
 
-    local id = global.workers_active_id
-    local worker = workers.get(id)
+    local worker = global.workers[id]
     if not worker.entity.valid then
         global.workers[id] = global.workers[workers.count()]
         table.remove(global.workers)
-        global.workers_active_id = 1
-        return
+        return nil
     end
 
-    if worker.target ~= nil then
-        if worker.target.valid ~= false then
-            worker.entity.autopilot_destination = worker.target.position
-            workers.select_next()
-            return
-        end
+    return worker
+end
 
-        worker.target = nil
+---@param worker Worker
+---@param target LuaEntity
+function workers.follow(worker, target)
+    worker.target = target
+    worker.entity.autopilot_destination = target.position
+    worker.state = workers.State.Following
+end
+
+---@param worker Worker
+---@return boolean
+function workers.is_following(worker)
+    return worker.target ~= nil
+end
+
+---@param worker Worker
+function workers.stop(worker)
+    worker.target = nil
+    worker.entity.autopilot_destination = nil
+    worker.state = workers.State.Idle
+end
+
+---@param worker Worker
+function workers.robot_limit(worker)
+    return worker.entity.logistic_network.robot_limit
+end
+
+---@param worker Worker
+---@return uint
+function workers.count_robots(worker)
+    return worker.entity.logistic_network.all_construction_robots
+end
+
+---@param worker Worker
+---@return uint
+function workers.count_items(worker, item_name)
+    local inventory = worker.entity.get_inventory(defines.inventory.spider_trunk)
+    if inventory == nil then
+        error("inventory is nil")
     end
 
-    if jobs.count() == 0 then
-        return
-    end
-
-    local offset = (id - 1) / workers.count()
-    local job = nil
-    local retries = 0
-    while job == nil do
-        if retries ^ 2 > jobs.count() then
-            return
-        end
-        job = jobs.get_job(offset)
-        retries = retries + 1
-    end
-
-    worker.target = job
-    worker.entity.autopilot_destination = worker.target.position
-    workers.select_next()
+    local stacks = inventory.get_contents()
+    return stacks[item_name]
 end
 
 return workers

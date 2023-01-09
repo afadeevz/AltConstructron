@@ -1,8 +1,9 @@
 local jobs = {}
 
+---@alias Job LuaEntity
+
 function jobs.on_init()
     global.jobs = global.jobs or {}
-    global.jobs_active_id = global.jobs_active_id or 1
 end
 
 function jobs.on_ghost_placed(event)
@@ -15,16 +16,14 @@ end
 
 function jobs.select_next()
     if jobs.count() == 0 then
-        global.jobs_active_id = 1
+        global.scheduler_active_job_id = 1
     else
-        global.jobs_active_id = global.jobs_active_id % jobs.count() + 1
+        global.scheduler_active_job_id = global.scheduler_active_job_id % jobs.count() + 1
     end
 end
 
-function jobs.get_job(offset)
-    offset = offset or 0
-    local id_offset = math.floor(offset * jobs.count())
-    local id = (global.jobs_active_id + id_offset - 1) % jobs.count() + 1
+---@return Job?
+function jobs.get(id)
     local job = global.jobs[id]
     if not job.valid then
         global.jobs[id] = global.jobs[jobs.count()]

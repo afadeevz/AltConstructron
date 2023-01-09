@@ -1,5 +1,6 @@
 local jobs = require("scripts.jobs")
 local workers = require("scripts.workers")
+local scheduler = require("scripts.scheduler")
 
 local handlers = {}
 
@@ -29,7 +30,7 @@ script.on_event(defines.events.on_marked_for_deconstruction,
 
 script.on_nth_tick(1,
     function()
-        workers.on_tick()
+        scheduler.on_tick()
     end
 )
 
