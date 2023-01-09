@@ -21,6 +21,12 @@ script.on_event(defines.events.on_built_entity,
     { filter = "name", name = "tile-ghost" }
 })
 
+script.on_event(defines.events.on_marked_for_deconstruction,
+    function(event)
+        job_pool.on_marked_for_deconstruction(event)
+    end
+)
+
 script.on_nth_tick(1,
     function()
         workers.on_tick()

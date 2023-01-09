@@ -9,6 +9,10 @@ function job_pool.on_ghost_placed(event)
     table.insert(global.job_pool, event.created_entity)
 end
 
+function job_pool.on_marked_for_deconstruction(event)
+    table.insert(global.job_pool, event.entity)
+end
+
 function job_pool.select_next()
     if job_pool.count() == 0 then
         global.job_pool_active_id = 1
