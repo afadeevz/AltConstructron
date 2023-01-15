@@ -1,1 +1,3 @@
-require("prototypes.alt_constructron")
+require("prototypes.worker")
+require("prototypes.station")
+require("prototypes.technology")
