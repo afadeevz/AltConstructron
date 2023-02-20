@@ -1,15 +1,16 @@
-local workers = require("scripts.workers")
+local workers = require("scripts.workers.workers")
+local Worker = require("scripts.workers.Worker")
 local jobs = require("scripts.jobs")
 
 local scheduler = {}
 
 function scheduler.on_init()
-    global.scheduler_active_worker_id = global.scheduler_active_worker_id or 1 ---@type uint
-    global.scheduler_active_job_id = global.scheduler_active_job_id or 1 ---@type uint
+    global.scheduler_active_worker_id = global.scheduler_active_worker_id or 1 --[[@as uint]]
 end
 
 function scheduler.on_tick()
-    jobs.gc()
+    -- jobs.gc()
+    -- jobs.shuffle()
 
     if workers.count() == 0 then
         return
@@ -21,7 +22,7 @@ function scheduler.on_tick()
         return
     end
 
-    workers.on_tick(worker, global.scheduler_active_worker_id)
+    Worker.on_tick(worker)
     scheduler.select_next_worker()
 end
 
@@ -35,7 +36,7 @@ function scheduler.select_next_worker()
         return
     end
 
-    global.scheduler_active_worker_id = global.scheduler_active_worker_id % workers.count() + 1
+    global.scheduler_active_worker_id = global.scheduler_active_worker_id % workers.count() + 1 --[[@as uint]]
 end
 
 function scheduler.fix_active_worker_id()
@@ -44,7 +45,7 @@ function scheduler.fix_active_worker_id()
         return
     end
 
-    global.scheduler_active_worker_id = (global.scheduler_active_worker_id - 1) % workers.count() + 1
+    global.scheduler_active_worker_id = (global.scheduler_active_worker_id - 1) % workers.count() + 1 --[[@as uint]]
 end
 
 return scheduler

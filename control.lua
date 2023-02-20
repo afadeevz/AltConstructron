@@ -1,6 +1,7 @@
 require("scripts.event_handlers")
+require("scripts.commands")
 local jobs = require("scripts.jobs")
-local workers = require("scripts.workers")
+local workers = require("scripts.workers.workers")
 local scheduler = require("scripts.scheduler")
 local stations = require("scripts.stations")
 

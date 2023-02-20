@@ -12,13 +12,18 @@ jobs.Type = {
 ---@field type JobType
 ---@field entity LuaEntity
 
+function jobs.info()
+    game.print("Jobs: " .. jobs.count())
+end
+
 function jobs.on_init()
     global.jobs = global.jobs or {} ---@type Job[]
+    global.jobs_active_id = global.jobs_active_id or 1 ---@type uint
 end
 
 ---@param event EventData.on_built_entity
 function jobs.on_ghost_placed(event)
-    table.insert(global.jobs, {
+    jobs.add({
         type = jobs.Type.Build,
         entity = event.created_entity,
     })
@@ -26,19 +31,32 @@ end
 
 ---@param event EventData.on_marked_for_deconstruction
 function jobs.on_marked_for_deconstruction(event)
-    table.insert(global.jobs, {
+    jobs.add({
         type = jobs.Type.Deconstruct,
         entity = event.entity,
     })
 end
 
-function jobs.select_next()
+---@param job Job
+function jobs.add(job)
     if jobs.count() == 0 then
-        global.scheduler_active_job_id = 1
+        global.jobs[jobs.count() + 1] = job
     else
-        global.scheduler_active_job_id = global.scheduler_active_job_id % jobs.count() + 1
+        local id = math.random(1, jobs.count())
+        global.jobs[jobs.count() + 1] = global.jobs[id]
+        global.jobs[id] = job
     end
 end
+
+-- function jobs.select_next()
+--     global.jobs_active_id = global.jobs_active_id or 1 ---@type uint
+
+--     if jobs.count() == 0 then
+--         global.jobs_active_id = 1
+--     else
+--         global.jobs_active_id = global.jobs_active_id % jobs.count() + 1
+--     end
+-- end
 
 ---@param id uint
 ---@return Job?
@@ -46,26 +64,23 @@ function jobs.get(id)
     local job = global.jobs[id]
     if not job.entity.valid then
         global.jobs[id] = global.jobs[jobs.count()]
-        table.remove(global.jobs)
-        jobs.select_next()
+        global.jobs[jobs.count()] = nil
         return nil
     end
 
-    jobs.select_next()
     return job
 end
 
 ---@param position MapPosition
----@param filter fun(Job): boolean
+---@param filter fun(job: Job): boolean
 ---@return Job?
 function jobs.find_close_to(position, filter)
     local iters = 0
     local min = math.huge
     local closest = nil
-
     while true do
-        if iters ^ 2 > jobs.count() then
-            game.print("jobs.find_close_to: " .. iters .. " iters")
+        if iters ^ 3 > jobs.count() then
+            -- game.print("jobs.find_close_to: " .. iters .. " iters")
             return closest
         end
 
@@ -73,8 +88,8 @@ function jobs.find_close_to(position, filter)
             return nil
         end
 
-        local id = math.random(1, jobs.count()) --[[@as uint]]
-        local job = jobs.get(id)
+        global.jobs_active_id = 1 + global.jobs_active_id % jobs.count() --[[@as uint]]
+        local job = jobs.get(global.jobs_active_id)
         if job and filter(job) then
             local dist = flib_position.distance(position, job.entity.position)
             if dist < min then
@@ -92,8 +107,30 @@ function jobs.count()
     return #global.jobs --[[@as uint]]
 end
 
+function jobs.shuffle()
+    if jobs.count() <= 1 then
+        return
+    end
+
+    local iters = 0
+
+    while true do
+        if iters ^ 5 > jobs.count() then
+            -- game.print("jobs.gc: " .. iters .. " iters, " .. deleted .. " deleted")
+            return
+        end
+
+        local id = math.random(1, jobs.count() - 1)
+        local tmp = global.jobs[id]
+        global.jobs[id] = global.jobs[jobs.count()]
+        global.jobs[jobs.count()] = tmp
+
+        iters = iters + 1
+    end
+end
+
 function jobs.gc()
-    global.jobs_gc_id = global.jobs_gc_id or 0 ---@type uint
+    global.jobs_gc_id = global.jobs_gc_id or 0 --[[@as uint]]
 
     if jobs.count() == 0 then
         return
@@ -118,13 +155,13 @@ function jobs.gc()
                 -- game.print("jobs.gc: " .. iters .. " iters, " .. deleted .. " deleted")
                 return
             end
-            table.remove(global.jobs)
+            global.jobs[jobs.count()] = nil
             iters = iters + 1
             deleted = deleted + 1
         end
 
         global.jobs[global.jobs_gc_id] = global.jobs[jobs.count()]
-        table.remove(global.jobs)
+        global.jobs[jobs.count()] = nil
         deleted = deleted + 1
         if jobs.count() == 0 then
             -- game.print("jobs.gc: " .. iters .. " iters, " .. deleted .. " deleted")

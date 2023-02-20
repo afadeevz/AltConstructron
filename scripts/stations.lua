@@ -8,7 +8,7 @@ end
 
 ---@param event EventData.on_built_entity
 function stations.on_built(event)
-    table.insert(global.stations, event.created_entity)
+    global.stations[stations.count() + 1] = event.created_entity
 end
 
 ---@return uint
@@ -26,7 +26,7 @@ function stations.find_closest_to(position)
         local station = global.stations[id]
         if not station.valid then
             global.stations[id] = global.stations[stations.count()]
-            table.remove(global.stations)
+            global.stations[stations.count()] = nil
 
             goto continue
         end
