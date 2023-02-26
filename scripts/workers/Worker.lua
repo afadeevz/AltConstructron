@@ -290,7 +290,7 @@ function Worker.can_take_job(self, job)
     if job.type == jobs.Type.Build then
         return Worker.can_take_build_job(self, job)
     elseif job.type == jobs.Type.Deconstruct then
-        return Worker.can_take_deconstruct_job(self)
+        return Worker.can_take_deconstruct_job(self, job)
     else
         error("unknown job type")
     end
@@ -321,8 +321,13 @@ function Worker.can_take_build_job(self, job)
 end
 
 ---@param self Worker
+---@param job Job
 ---@return boolean
-function Worker.can_take_deconstruct_job(self)
+function Worker.can_take_deconstruct_job(self, job)
+    if job.type == jobs.Type.Deconstruct and not job.entity.to_be_deconstructed() then
+        return false
+    end
+
     local stack = Worker.get_inventory(self).find_empty_stack()
     if not stack then
         return false

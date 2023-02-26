@@ -20,7 +20,7 @@ end
 function storage.add(item, count)
     global.storage[item] = global.storage[item] or 0
     global.storage[item] = global.storage[item] + count
-    game.print("Storage[" .. item .. "] = " .. global.storage[item])
+    -- game.print("Storage[" .. item .. "] = " .. global.storage[item])
 end
 
 ---@param item string
@@ -28,7 +28,7 @@ end
 function storage.trash(item, count)
     global.storage[item] = global.storage[item] or 0
     global.storage[item] = math.max(0, global.storage[item] - count)
-    game.print("Storage[" .. item .. "] = " .. global.storage[item])
+    -- game.print("Storage[" .. item .. "] = " .. global.storage[item])
 end
 
 ---@param item string
