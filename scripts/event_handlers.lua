@@ -38,7 +38,6 @@ script.on_event(defines.events.on_built_entity,
 script.on_event(defines.events.on_marked_for_deconstruction,
     function(event)
         jobs.on_marked_for_deconstruction(event)
-        storage.on_marked_for_deconstruction(event)
         if event.entity.name == "deconstructible-tile-proxy" then
             local entity = event.entity
             local surface = entity.surface

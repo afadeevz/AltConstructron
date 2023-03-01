@@ -78,8 +78,9 @@ function jobs.find_close_to(position, filter)
     local iters = 0
     local min = math.huge
     local closest = nil
+    local perf = settings.global.perf.value
     while true do
-        if iters ^ settings.global.perf.value > jobs.count() then
+        if iters ^ perf > jobs.count() then
             -- game.print("jobs.find_close_to: " .. iters .. " iters")
             return closest
         end
