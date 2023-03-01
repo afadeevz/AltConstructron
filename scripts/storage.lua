@@ -11,7 +11,9 @@ end
 function storage.info()
     game.print("Storage:")
     for name, value in pairs(global.storage) do
-        game.print(name .. " = " .. value)
+        if value ~= 0 then
+            game.print(name .. " = " .. value)
+        end
     end
 end
 
@@ -20,7 +22,10 @@ end
 function storage.add(item, count)
     global.storage[item] = global.storage[item] or 0
     global.storage[item] = global.storage[item] + count
-    -- game.print("Storage[" .. item .. "] = " .. global.storage[item])
+
+    if settings.global.storage_debug then
+        game.print("Storage[" .. item .. "] = " .. global.storage[item] .. " (+" .. count .. ")")
+    end
 end
 
 ---@param item string
@@ -28,7 +33,10 @@ end
 function storage.trash(item, count)
     global.storage[item] = global.storage[item] or 0
     global.storage[item] = math.max(0, global.storage[item] - count)
-    -- game.print("Storage[" .. item .. "] = " .. global.storage[item])
+
+    if settings.global.storage_debug then
+        game.print("Storage[" .. item .. "] = " .. global.storage[item] .. " (-" .. count .. ")")
+    end
 end
 
 ---@param item string
